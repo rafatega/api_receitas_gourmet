@@ -1,5 +1,9 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import (
+    JWTManager, create_access_token, jwt_required, get_jwt_identity
+)
+
 
 # Configurações da aplicação
 
@@ -21,6 +25,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 db = SQLAlchemy(app)
+jwt = JWTManager(app)
 
 
 class User(db.Model):
@@ -39,6 +44,35 @@ class Recipe(db.Model):
 @app.route('/')
 def home():
     return 'Página inicial'
+
+
+@app.route('/register', methods=['POST'])
+def register_user():
+    """
+    Registra um novo usuário.
+    ---
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+            password:
+              type: string
+    responses:
+      201:
+        description: Usuário criado com sucesso
+      400:
+        description: Usuário já existe
+    """
+
+
+data = request.get_json()
+if User.query.filter_by(username=data['username']).first():
+    return js
 
 
 if __name__ == '__main__':
